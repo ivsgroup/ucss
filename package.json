@@ -1,0 +1,29 @@
+{
+  "name": "ucss",
+  "version": "1.0.0",
+  "description": "minify css dependency to used rules only",
+  "main": "ucss.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ivsgroup/ucss.git"
+  },
+  "keywords": [
+    "minimal",
+    "offline",
+    "standalone",
+    "css",
+    "uncss"
+  ],
+  "author": "Francois Leurent <fleurent@ivsweb.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ivsgroup/ucss/issues"
+  },
+  "homepage": "https://github.com/ivsgroup/ucss",
+  "dependencies": {
+    "uclass": "^1.0.1"
+  }
+}
