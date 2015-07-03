@@ -1,5 +1,5 @@
 {
-  "name": "ucss",
+  "name": "microcss",
   "version": "1.0.0",
   "description": "minify css dependency to used rules only",
   "main": "ucss.js",
