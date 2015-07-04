@@ -4,6 +4,11 @@ module.exports = function(anchor){
   return (new uCSS(anchor)).process();
 }
 
+if(!Array.each) Array.each = function(array, fn){
+  for(var i=0;i<array.length;i++)
+    fn(array[i], i);
+}
+
 var uCSS = new Class({
 
   pseudosRegex : (function(){
@@ -43,7 +48,7 @@ var uCSS = new Class({
   process  : function(){
     var out = [], self = this;
 
-    Object.each(document.styleSheets, function(style, index) {
+    Array.each(document.styleSheets, function(style, index) {
       if (!style.href) return;
 
       Array.each(style.rules, function(rule) {
