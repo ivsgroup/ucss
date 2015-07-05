@@ -34,12 +34,16 @@ var uCSS = new Class({
 
   initialize : function(anchor) {
 
-    this.anchor = anchor;
+    this.anchor   = anchor;
+
+      //auto references document & window for portability
+    this.document = anchor.ownerDocument;
+    this.window   = this.document.defaultView;
 
     var container = anchor;
     this.parentPath = [anchor];
 
-    while(container != document.documentElement)
+    while(container != this.document.documentElement)
       this.parentPath.push(container = container.parentNode);
 
     this.parentPath.reverse();
@@ -48,8 +52,8 @@ var uCSS = new Class({
   process  : function(){
     var out = [], self = this;
 
-    Array.each(document.styleSheets, function(style, index) {
-      if (!style.href) return;
+    Array.each(this.document.styleSheets, function(style, index) {
+      if (!style.rules) return;
 
       Array.each(style.rules, function(rule) {
         out = out.concat(self.recss(rule));
@@ -62,12 +66,12 @@ var uCSS = new Class({
   recss:function(rule) {
     var out = [], self = this;
 
-    if(rule instanceof CSSFontFaceRule) {
+    if(rule instanceof this.window.CSSFontFaceRule) {
       out.push(rule.cssText);
       return out;
     }
 
-    if(rule instanceof CSSMediaRule) {
+    if(rule instanceof this.window.CSSMediaRule) {
       out.push("@media " + rule.media.mediaText + "{ ");
       Array.each(rule.cssRules, function(rule) {
         out = out.concat(self.recss(rule));
@@ -80,7 +84,7 @@ var uCSS = new Class({
 
     var selector = rule.selectorText.replace(this.pseudosRegex, '$1');
 
-    var elements = document.querySelectorAll(selector);
+    var elements = this.document.querySelectorAll(selector);
 
     var matched = false;
     for(var i= 0; i< elements.length; i++) {
@@ -88,7 +92,7 @@ var uCSS = new Class({
       if(hi != -1 &&  hi < 2) //html, body only, this behavior can be optionnal
         parent = this.anchor;
 
-      while(parent != document.documentElement && parent != this.anchor)
+      while(parent != this.document.documentElement && parent != this.anchor)
         parent = parent.parentNode; 
 
       if(parent == this.anchor) {
