@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/ivsgroup/ucss",
   "dependencies": {
+    "mout": "^0.11.0",
+    "ubase64": "^1.0.0",
     "uclass": "^1.0.1"
   }
 }

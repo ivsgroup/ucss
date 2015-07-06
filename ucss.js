@@ -1,16 +1,37 @@
-var Class = require('uclass');
+var Class        = require('uclass');
+var base64encode = require('ubase64/encode');
+var forEach      = require('mout/array/foreach');
 
-module.exports = function(anchor){
-  return (new uCSS(anchor)).process();
+//var url          = require('url'); //this works as expected
+var url = {
+  parseDir : function(url){
+    console.log(url);
+    var foo = /https?:\/\/[^\/]+(\/[^?#]+)/;
+    if(!foo.test(url))
+      return url;
+    var path = foo.exec(url)[1];
+    return path.substr(path.lastIndexOf('/'));
+  }
 }
 
-if(!Array.each) Array.each = function(array, fn){
-  for(var i=0;i<array.length;i++)
-    fn(array[i], i);
+
+
+  //anchor [,options] ,chain
+module.exports = function(anchor, options, chain){
+  var args = [].slice.call(arguments);
+  anchor  = args.shift();
+  chain   = args.pop();
+  options = args.pop()
+
+  return (new uCSS(anchor, options)).process(chain);
 }
+
+
 
 var uCSS = new Class({
-
+  Implements : [
+    require('uclass/options'),
+  ],
   pseudosRegex : (function(){
     var ignoredPseudos = [
           /* link */
@@ -32,9 +53,17 @@ var uCSS = new Class({
   anchor     : null,
   parentPath : null,
 
-  initialize : function(anchor) {
+  options    : {
+         //inline fonts using dataURI
+      inlineFonts : true,
+        //when not inlining fonts, assume all fonts are available in fontsDir
+      fontsDir    : '/fonts/',
+  },
 
+  initialize : function(anchor, options) {
     this.anchor   = anchor;
+    this.setOptions(options);
+    console.log(this.options);
 
       //auto references document & window for portability
     this.document = anchor.ownerDocument;
@@ -49,31 +78,56 @@ var uCSS = new Class({
     this.parentPath.reverse();
   },
 
-  process  : function(){
+  getBinary: function (url) {
+    var XMLHttpRequest = this.window.XMLHttpRequest;
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, false);
+    xhr.overrideMimeType("text/plain; charset=x-user-defined");
+    xhr.send(null);
+    return xhr.responseText;
+  },
+
+
+  process  : function(chain){
     var out = [], self = this;
 
-    Array.each(this.document.styleSheets, function(style, index) {
+    forEach(this.document.styleSheets, function(style, index) {
       if (!style.rules) return;
 
-      Array.each(style.rules, function(rule) {
+      forEach(style.rules, function(rule) {
         out = out.concat(self.recss(rule));
       });
     });
 
-    return out.join('');
+    chain(null, out.join(''));
   },
 
   recss:function(rule) {
     var out = [], self = this;
 
+    var remoteMatch = new RegExp("url\\((.*)\\)");
+
     if(rule instanceof this.window.CSSFontFaceRule) {
-      out.push(rule.cssText);
+      var src = rule.style.src, outFace = rule.cssText;
+
+      if(remoteMatch.test(src)) {
+        var fontPath, fontUrl = remoteMatch.exec(src)[1];
+        if(self.options.inlineFonts) {
+          var base64EncodedFont = base64encode(this.getBinary(fontUrl));
+          fontPath = "url('data:application/font-ttf;base64, " + base64EncodedFont + "')";
+        } else {
+          fontPath = "url('"+ self.options.fontsDir + url.parseDir(fontUrl) + "')";
+        }
+        outFace = outFace.replace(remoteMatch, fontPath);
+      }
+
+      out.push(outFace);
       return out;
     }
 
     if(rule instanceof this.window.CSSMediaRule) {
       out.push("@media " + rule.media.mediaText + "{ ");
-      Array.each(rule.cssRules, function(rule) {
+      forEach(rule.cssRules, function(rule) {
         out = out.concat(self.recss(rule));
       });
       out.push("}");
