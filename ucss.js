@@ -1,6 +1,6 @@
 var Class        = require('uclass');
 var base64encode = require('ubase64/encode');
-var forEach      = require('mout/array/foreach');
+var forEach      = require('mout/array/forEach');
 
 //var url          = require('url'); //this works as expected
 var url = {
