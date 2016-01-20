@@ -75,7 +75,7 @@ var uCSS = new Class({
     var container = anchor;
     this.parentPath = [anchor];
 
-    while(container != this.document.documentElement)
+    while(container != this.document.documentElement && container != null)
       this.parentPath.push(container = container.parentNode);
 
     this.parentPath.reverse();
