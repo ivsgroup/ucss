@@ -153,20 +153,17 @@ var uCSS = new Class({
         parent = parent.parentNode; 
 
       if(parent == this.anchor) {
-        var outBackground = rule.cssText;
+        var topush = rule.cssText;
         if (self.options.inlineBackgrounds) {
-          if(remoteMatch.test(outBackground)) {
-            var backgroundUrl = remoteMatch.exec(outBackground)[1].replace(new RegExp('"', 'g'), ''),
+          if(remoteMatch.test(topush)) {
+            var backgroundUrl = remoteMatch.exec(topush)[1].replace(new RegExp('"', 'g'), ''),
                 base64Background = base64encode(this.getBinary(self.options.backgroundsBaseDir + backgroundUrl));
                 backgroundPath = "url('data:image/jpg;base64, " + base64Background + "')";
-            outBackground = outBackground.replace(remoteMatch, backgroundPath);
-            out.push(outBackground);
-          } else {
-            out.push(rule.cssText);
+            topush = topush.replace(remoteMatch, backgroundPath);
+            out.push(topush);
           }
-        } else {
-          out.push(rule.cssText);
         }
+        out.push(topush);
         break;
       }
     }
