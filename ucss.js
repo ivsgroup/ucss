@@ -1,11 +1,11 @@
 var Class        = require('uclass');
 var base64encode = require('ubase64/encode');
 var forEach      = require('mout/array/forEach');
+var path         = require('path');
 
 //var url          = require('url'); //this works as expected
 var url = {
   parseDir : function(url){
-    console.log(url);
     var foo = /https?:\/\/[^\/]+(\/[^?#]+)/;
     if(!foo.test(url))
       return url;
@@ -54,21 +54,21 @@ var uCSS = new Class({
   parentPath : null,
 
   options : {
-    //base64 background images
-    inlineBackgrounds : false,
+    //base64 images
+    inlineimages  : false,
     //inline fonts using dataURI
-    inlineFonts : false,
+    inlineFonts   : false,
     //when not inlining fonts, assume all fonts are available in fontsDir
-    fontsDir    : '/fonts/',
-    backgroundsBaseDir : '/resources'
+    fontsDir      : '/fonts/',
+    imagesBaseDir : '/resources',
+    AbsolutePath  : false
   },
 
   initialize : function(anchor, options) {
     this.anchor   = anchor;
     this.setOptions(options);
-    console.log(this.options);
 
-      //auto references document & window for portability
+    //auto references document & window for portability
     this.document = anchor.ownerDocument;
     this.window   = this.document.defaultView;
 
@@ -154,12 +154,18 @@ var uCSS = new Class({
 
       if(parent == this.anchor) {
         var topush = rule.cssText;
-        if (self.options.inlineBackgrounds) {
-          if(remoteMatch.test(topush)) {
-            var backgroundUrl = remoteMatch.exec(topush)[1].replace(new RegExp('"', 'g'), ''),
-                base64Background = base64encode(this.getBinary(self.options.backgroundsBaseDir + backgroundUrl));
-                backgroundPath = "url('data:image/jpg;base64, " + base64Background + "')";
-            topush = topush.replace(remoteMatch, backgroundPath);
+        if(remoteMatch.test(topush)) {
+          var imageUrl = remoteMatch.exec(topush)[1].replace(new RegExp('"', 'g'), '');
+          if (self.options.inlineimages) {
+            var base64Image = base64encode(this.getBinary(self.options.imagesBaseDir + imageUrl));
+                imagePath = "url('data:image/jpg;base64, " + base64Image + "')";
+            topush = topush.replace(remoteMatch, imagePath);
+            out.push(topush);
+          }
+          if (self.options.AbsolutePath) {
+            var absoluteUrl = path.join(self.options.AbsolutePath, self.options.imagesBaseDir, imageUrl),
+                imagePath = "url('" + absoluteUrl + "')";
+            topush = topush.replace(remoteMatch, imagePath);
             out.push(topush);
           }
         }
