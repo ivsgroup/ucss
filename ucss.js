@@ -32,7 +32,7 @@ var uCSS = new Class({
   Implements : [
     require('uclass/options'),
   ],
-  pseudosRegex : (function(){
+  pseudosRegex : (function() {
     var ignoredPseudos = [
           /* link */
           ':link', ':visited',
@@ -53,11 +53,14 @@ var uCSS = new Class({
   anchor     : null,
   parentPath : null,
 
-  options    : {
-         //inline fonts using dataURI
-      inlineFonts : true,
-        //when not inlining fonts, assume all fonts are available in fontsDir
-      fontsDir    : '/fonts/',
+  options : {
+    //base64 background images
+    inlineBackgrounds : false,
+    //inline fonts using dataURI
+    inlineFonts : false,
+    //when not inlining fonts, assume all fonts are available in fontsDir
+    fontsDir    : '/fonts/',
+    backgroundsBaseDir : '/resources'
   },
 
   initialize : function(anchor, options) {
@@ -150,12 +153,24 @@ var uCSS = new Class({
         parent = parent.parentNode; 
 
       if(parent == this.anchor) {
-        out.push(rule.cssText);
+        var outBackground = rule.cssText;
+        if (self.options.inlineBackgrounds) {
+          if(remoteMatch.test(outBackground)) {
+            var backgroundUrl = remoteMatch.exec(outBackground)[1].replace(new RegExp('"', 'g'), ''),
+                base64Background = base64encode(this.getBinary(self.options.backgroundsBaseDir + backgroundUrl));
+                backgroundPath = "url('data:image/jpg;base64, " + base64Background + "')";
+            outBackground = outBackground.replace(remoteMatch, backgroundPath);
+            out.push(outBackground);
+          } else {
+            out.push(rule.cssText);
+          }
+        } else {
+          out.push(rule.cssText);
+        }
         break;
       }
     }
     return out;
-
-  },
+  }
 
 });
