@@ -15,7 +15,9 @@ ucss(document.getElementById("myelement"), function(err, minimalcssRules){
 
 # Options 
 ```
-* inlineFonts (default true) : fetch & inline used fonts (using data-url)
-* fontsDir    (default false): when not inlining fonts, considers all fonts available in this path
+* inlineFonts (default false) : fetch & inline used fonts (using data-url)
+* fontsDir    (default /fonts/): when not inlining fonts, considers all fonts available in this path
+* inlineBackgrounds (default false) : fetch & inline background images (using data-url)
+* backgroundsBaseDir (default /resources) : Concat with relative backgrounds path in css file
 ```
 
