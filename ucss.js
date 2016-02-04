@@ -59,7 +59,7 @@ var uCSS = new Class({
     //inline fonts using dataURI
     inlineFonts   : false,
     //when not inlining fonts, assume all fonts are available in fontsDir
-    fontsDir      : '/fonts/',
+    fontsDir      : '/fonts',
     imagesBaseDir : '/resources',
     AbsolutePath  : false
   },
@@ -119,7 +119,7 @@ var uCSS = new Class({
           var base64EncodedFont = base64encode(this.getBinary(fontUrl));
           fontPath = "url('data:application/font-ttf;base64, " + base64EncodedFont + "')";
         } else {
-          fontPath = "url('"+ self.options.fontsDir + url.parseDir(fontUrl) + "')";
+          fontPath = "url('"+ self.options.fontsDir + url.parseDir(fontUrl).replace('"', '') + "')";
         }
         outFace = outFace.replace(remoteMatch, fontPath);
       }
