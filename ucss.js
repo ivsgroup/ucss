@@ -1,11 +1,11 @@
 var Class        = require('uclass');
 var base64encode = require('ubase64/encode');
 var forEach      = require('mout/array/forEach');
+var path         = require('path');
 
 //var url          = require('url'); //this works as expected
 var url = {
   parseDir : function(url){
-    console.log(url);
     var foo = /https?:\/\/[^\/]+(\/[^?#]+)/;
     if(!foo.test(url))
       return url;
@@ -32,7 +32,7 @@ var uCSS = new Class({
   Implements : [
     require('uclass/options'),
   ],
-  pseudosRegex : (function(){
+  pseudosRegex : (function() {
     var ignoredPseudos = [
           /* link */
           ':link', ':visited',
@@ -53,26 +53,29 @@ var uCSS = new Class({
   anchor     : null,
   parentPath : null,
 
-  options    : {
-         //inline fonts using dataURI
-      inlineFonts : true,
-        //when not inlining fonts, assume all fonts are available in fontsDir
-      fontsDir    : '/fonts/',
+  options : {
+    //base64 images
+    inlineimages  : false,
+    //inline fonts using dataURI
+    inlineFonts   : false,
+    //when not inlining fonts, assume all fonts are available in fontsDir
+    fontsDir      : '/fonts',
+    imagesBaseDir : '/resources',
+    AbsolutePath  : false
   },
 
   initialize : function(anchor, options) {
     this.anchor   = anchor;
     this.setOptions(options);
-    console.log(this.options);
 
-      //auto references document & window for portability
+    //auto references document & window for portability
     this.document = anchor.ownerDocument;
     this.window   = this.document.defaultView;
 
     var container = anchor;
     this.parentPath = [anchor];
 
-    while(container != this.document.documentElement)
+    while(container != this.document.documentElement && container != null)
       this.parentPath.push(container = container.parentNode);
 
     this.parentPath.reverse();
@@ -116,7 +119,7 @@ var uCSS = new Class({
           var base64EncodedFont = base64encode(this.getBinary(fontUrl));
           fontPath = "url('data:application/font-ttf;base64, " + base64EncodedFont + "')";
         } else {
-          fontPath = "url('"+ self.options.fontsDir + url.parseDir(fontUrl) + "')";
+          fontPath = "url('"+ self.options.fontsDir + url.parseDir(fontUrl).replace('"', '') + "')";
         }
         outFace = outFace.replace(remoteMatch, fontPath);
       }
@@ -150,12 +153,27 @@ var uCSS = new Class({
         parent = parent.parentNode; 
 
       if(parent == this.anchor) {
-        out.push(rule.cssText);
+        var topush = rule.cssText;
+        if(remoteMatch.test(topush)) {
+          var imageUrl = remoteMatch.exec(topush)[1].replace(new RegExp('"', 'g'), '');
+          if (self.options.inlineimages) {
+            var base64Image = base64encode(this.getBinary(self.options.imagesBaseDir + imageUrl));
+                imagePath = "url('data:image/jpg;base64, " + base64Image + "')";
+            topush = topush.replace(remoteMatch, imagePath);
+            out.push(topush);
+          }
+          if (self.options.AbsolutePath) {
+            var absoluteUrl = path.join(self.options.AbsolutePath, self.options.imagesBaseDir, imageUrl),
+                imagePath = "url('" + absoluteUrl + "')";
+            topush = topush.replace(remoteMatch, imagePath);
+            out.push(topush);
+          }
+        }
+        out.push(topush);
         break;
       }
     }
     return out;
-
-  },
+  }
 
 });
