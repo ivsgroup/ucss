@@ -1,3 +1,5 @@
+"use strict";
+
 var Class        = require('uclass');
 var base64encode = require('ubase64/encode');
 var forEach      = require('mout/array/forEach');
