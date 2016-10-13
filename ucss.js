@@ -121,7 +121,7 @@ var uCSS = new Class({
           var base64EncodedFont = base64encode(this.getBinary(fontUrl));
           fontPath = "url('data:application/font-ttf;base64, " + base64EncodedFont + "')";
         } else {
-          fontPath = "url('"+ self.options.fontsDir + url.parseDir(fontUrl).replace('"', '') + "')";
+          fontPath = "url('"+ self.options.fontsDir + url.parseDir(fontUrl).replace(new RegExp('"', 'g'), '') + "')";
         }
         outFace = outFace.replace(remoteMatch, fontPath);
       }
