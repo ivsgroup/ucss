@@ -163,7 +163,13 @@ var uCSS = new Class({
         parent = parent.parentNode; 
 
       if(parent == this.anchor) {
+
         var topush = rule.cssText;
+
+        // page-break-after is ignored.... force it !
+        if(rule.style.breakAfter != "")
+          topush = topush.replace('break-after: page;', 'break-after: page; page-break-after: always;');
+
         if(remoteMatch.test(topush)) {
           var imageUrl = remoteMatch.exec(topush)[1].replace(new RegExp('"', 'g'), '');
           if (self.options.inlineimages) {
