@@ -1,9 +1,9 @@
 "use strict";
 
-var Class        = require('uclass');
-var base64encode = require('ubase64/encode');
-var forEach      = require('mout/array/forEach');
-var path         = require('path');
+const Class        = require('uclass');
+const base64encode = require('ubase64/encode');
+const forEach      = require('mout/array/forEach');
+const path         = require('path');
 
 //var url          = require('url'); //this works as expected
 var url = {
@@ -18,7 +18,7 @@ var url = {
 
 
 
-  //anchor [,options] ,chain
+//anchor [,options] ,chain
 module.exports = function(anchor, options, chain){
   var args = [].slice.call(arguments);
   anchor  = args.shift();
@@ -132,17 +132,25 @@ var uCSS = new Class({
 
     if(rule instanceof this.window.CSSMediaRule) {
       out.push("@media " + rule.media.mediaText + "{ ");
-      forEach(rule.cssRules, function(rule) {
-        out = out.concat(self.recss(rule));
+
+      var has_rules = false;
+
+      forEach(rule.cssRules, function(child_rule) {
+        var rules = self.recss(child_rule);
+        if (rules.length > 0)
+          has_rules = true;
+        out = out.concat(rules);
       });
       out.push("}");
+
+      if (!has_rules)
+        out = [];
     }
 
     if(!rule.selectorText)
       return out;
 
     var selector = rule.selectorText.replace(this.pseudosRegex, '$1');
-
     var elements = this.document.querySelectorAll(selector);
 
     var matched = false;
