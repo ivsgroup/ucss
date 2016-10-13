@@ -1,3 +1,5 @@
+[![NPM version](https://img.shields.io/npm/v/ucss.svg)](https://www.npmjs.com/package/microcss)
+
 Use in conjunction with [lonesomedom] or with [browserify]
 
 # Api
