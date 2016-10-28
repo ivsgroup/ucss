@@ -47,7 +47,9 @@ var uCSS = new Class({
           /* pseudo classes */
           ':target',
           /* CSS2 pseudo elements */
-          ':before', ':after'
+          ':before', ':after',
+          /* Non standar pseudo features */
+          '::-webkit-inner-spin-button', '::-webkit-outer-spin-button', '::-webkit-search-cancel-button', '::-webkit-search-decoration', '::-webkit-input-placeholder'
         ];
     return new RegExp("([^,: ])(?:"+ignoredPseudos.join('|')+")", 'g');
   }()),
