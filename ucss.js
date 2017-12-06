@@ -3,9 +3,8 @@
 const Class        = require('uclass');
 const base64encode = require('ubase64/encode');
 const forEach      = require('mout/array/forEach');
-const path         = require('path');
+const sprintf      = require('nyks/string/format');
 
-//var url          = require('url'); //this works as expected
 var url = {
   parseDir : function(url){
     var foo = /https?:\/\/[^\/]+(\/[^?#]+)/;
@@ -15,8 +14,6 @@ var url = {
     return path.substr(path.lastIndexOf('/'));
   }
 }
-
-
 
 //anchor [,options] ,chain
 module.exports = function(anchor, options, chain){
@@ -174,18 +171,19 @@ var uCSS = new Class({
 
         if(remoteMatch.test(topush)) {
           var imageUrl = remoteMatch.exec(topush)[1].replace(new RegExp('"', 'g'), '');
-          if (self.options.inlineimages) {
-            var base64Image = base64encode(this.getBinary(self.options.imagesBaseDir + imageUrl));
-                imagePath = "url('data:image/jpg;base64, " + base64Image + "')";
-            topush = topush.replace(remoteMatch, imagePath);
-            out.push(topush);
-          }
-          if (self.options.AbsolutePath) {
-            var absoluteUrl = path.join(self.options.AbsolutePath, self.options.imagesBaseDir, imageUrl),
-                imagePath = "url('" + absoluteUrl + "')";
-            topush = topush.replace(remoteMatch, imagePath);
-            out.push(topush);
-          }
+          var search   = sprintf('%s%s', self.options.AbsolutePath, self.options.imagesBaseDir); 
+          imageUrl = imageUrl.replace(search, "");
+
+          var imagePath = '';
+
+          if (self.options.inlineimages)
+            imagePath   = "url('data:image/jpg;base64, " + base64encode(this.getBinary(self.options.imagesBaseDir + imageUrl)) + "')";
+
+          if (self.options.AbsolutePath)
+            imagePath = "url('" + sprintf('%s%s', search, imageUrl) + "')";
+
+          topush = topush.replace(remoteMatch, imagePath);
+          out.push(topush);
         }
         out.push(topush);
         break;
